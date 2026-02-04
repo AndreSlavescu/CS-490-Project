@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFinder - Database Organization & ER Diagram</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 30px;
+        }
+        .diagram {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* ER Diagram Container */
+        .er-container {
+            position: relative;
+            min-height: 560px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Entity Tables */
+        .entity {
+            position: absolute;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .entity-header {
+            padding: 12px 15px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .entity-header svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .entity.users .entity-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .entity.restaurants .entity-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .entity.menu-items .entity-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .entity.orders .entity-header { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .entity.nutrition .entity-header { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .entity.images .entity-header { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .entity.preferences .entity-header { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); color: #333; }
+        .entity.sessions .entity-header { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+
+        .entity-body {
+            padding: 10px 0;
+        }
+
+        .field {
+            padding: 6px 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field-name {
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .field-type {
+            color: #888;
+            font-size: 10px;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .field-key {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .field-key.pk {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .field-key.fk {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        /* Entity Positions - organized by domain */
+        /* Left: User domain | Right: Restaurant/Food domain */
+        .entity.users { top: 20px; left: 30px; }
+        .entity.preferences { top: 20px; left: 270px; }
+        .entity.sessions { top: 260px; left: 30px; }
+        .entity.orders { top: 260px; left: 270px; }
+        .entity.restaurants { top: 20px; left: 560px; }
+        .entity.menu-items { top: 20px; left: 820px; }
+        .entity.images { top: 280px; left: 510px; }
+        .entity.nutrition { top: 280px; left: 830px; }
+
+        /* Relationship Lines */
+        .relationships {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .relationships svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Database Types Section */
+        .db-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .db-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid;
+        }
+
+        .db-card.postgres { border-color: #336791; }
+        .db-card.redis { border-color: #dc382d; }
+        .db-card.vector { border-color: #00d4aa; }
+        .db-card.s3 { border-color: #ff9900; }
+
+        .db-card h3 {
+            font-size: 16px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .db-card p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .db-card ul {
+            list-style: none;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .db-card li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .db-card li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+
+        /* Replication Section */
+        .replication {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .replication h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .replication-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .db-node {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .db-node.master {
+            border: 3px solid #4caf50;
+        }
+
+        .db-node.replica {
+            border: 2px solid #2196f3;
+        }
+
+        .db-node h4 {
+            font-size: 14px;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .db-node p {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .db-node .badge {
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .db-node.master .badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .db-node.replica .badge {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 24px;
+        }
+
+        /* Indexes Section */
+        .indexes {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .indexes h3 {
+            font-size: 16px;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .index-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+        }
+
+        .index-item strong {
+            color: #1a1a2e;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .index-item code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram">
+        <h1>Database Organization & ER Diagram</h1>
+        <p class="subtitle">PostgreSQL schema with Redis caching and Vector DB for embeddings</p>
+
+        <!-- ER Diagram -->
+        <div class="er-container">
+            <!-- Relationship Lines SVG -->
+            <svg class="relationships" viewBox="0 0 1100 550">
+                <!-- Users -> Preferences (1:1) - horizontal at header level -->
+                <line x1="230" y1="38" x2="270" y2="38" stroke="#667eea" stroke-width="2"/>
+                <circle cx="230" cy="38" r="5" fill="#667eea"/>
+                <circle cx="270" cy="38" r="5" fill="#667eea"/>
+
+                <!-- Users -> Sessions (1:N) - vertical from bottom of users to top of sessions -->
+                <line x1="130" y1="195" x2="130" y2="260" stroke="#667eea" stroke-width="2"/>
+                <circle cx="130" cy="195" r="5" fill="#667eea"/>
+                <polygon points="125,255 135,255 130,265" fill="#667eea"/>
+
+                <!-- Users -> Meal Logs (1:N) - L-shaped -->
+                <path d="M 180 195 L 180 240 L 370 240 L 370 260" stroke="#667eea" stroke-width="2" fill="none"/>
+                <circle cx="180" cy="195" r="5" fill="#667eea"/>
+                <polygon points="365,255 375,255 370,265" fill="#667eea"/>
+
+                <!-- Restaurants -> Menu Items (1:N) - horizontal at header level -->
+                <line x1="760" y1="38" x2="820" y2="38" stroke="#f5576c" stroke-width="2"/>
+                <circle cx="760" cy="38" r="5" fill="#f5576c"/>
+                <polygon points="815,33 815,43 825,38" fill="#f5576c"/>
+
+                <!-- Menu Items -> Nutrition (1:1) - vertical -->
+                <line x1="930" y1="195" x2="930" y2="280" stroke="#00f2fe" stroke-width="2"/>
+                <circle cx="930" cy="195" r="5" fill="#00f2fe"/>
+                <circle cx="930" cy="280" r="5" fill="#00f2fe"/>
+
+                <!-- Menu Items -> Image Embeddings (1:N) - L-shaped -->
+                <path d="M 900 195 L 900 250 L 710 250 L 710 280" stroke="#00f2fe" stroke-width="2" fill="none"/>
+                <circle cx="900" cy="195" r="5" fill="#00f2fe"/>
+                <polygon points="705,275 715,275 710,285" fill="#00f2fe"/>
+
+                <!-- Meal Logs -> Menu Items (FK) - dashed path -->
+                <path d="M 470 300 L 495 300 L 495 225 L 920 225 L 920 195" stroke="#43e97b" stroke-width="2" stroke-dasharray="6,4" fill="none"/>
+                <circle cx="470" cy="300" r="4" fill="#43e97b"/>
+                <circle cx="920" cy="195" r="4" fill="#43e97b"/>
+            </svg>
+
+            <!-- Users Entity -->
+            <div class="entity users">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    users
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">email</span><span class="field-type">VARCHAR(255)</span></div>
+                    <div class="field"><span class="field-name">password_hash</span><span class="field-type">VARCHAR(255)</span></div>
+                    <div class="field"><span class="field-name">name</span><span class="field-type">VARCHAR(100)</span></div>
+                    <div class="field"><span class="field-name">created_at</span><span class="field-type">TIMESTAMP</span></div>
+                </div>
+            </div>
+
+            <!-- User Preferences Entity -->
+            <div class="entity preferences">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    user_preferences
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">user_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">dietary_restrictions</span><span class="field-type">JSONB</span></div>
+                    <div class="field"><span class="field-name">calorie_goal</span><span class="field-type">INT</span></div>
+                    <div class="field"><span class="field-name">protein_goal</span><span class="field-type">INT</span></div>
+                </div>
+            </div>
+
+            <!-- Sessions Entity -->
+            <div class="entity sessions">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    sessions (Redis)
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">session_id</span><span class="field-type">STRING</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">user_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">llm_context</span><span class="field-type">JSON</span></div>
+                    <div class="field"><span class="field-name">prefix_cache</span><span class="field-type">BLOB</span></div>
+                    <div class="field"><span class="field-name">ttl</span><span class="field-type">INT (3600s)</span></div>
+                </div>
+            </div>
+
+            <!-- Restaurants Entity -->
+            <div class="entity restaurants">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                    restaurants
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">name</span><span class="field-type">VARCHAR(255)</span></div>
+                    <div class="field"><span class="field-name">location</span><span class="field-type">POINT</span></div>
+                    <div class="field"><span class="field-name">cuisine_type</span><span class="field-type">VARCHAR(100)</span></div>
+                    <div class="field"><span class="field-name">rating</span><span class="field-type">DECIMAL(2,1)</span></div>
+                    <div class="field"><span class="field-name">hours</span><span class="field-type">JSONB</span></div>
+                </div>
+            </div>
+
+            <!-- Menu Items Entity -->
+            <div class="entity menu-items">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.20-1.10-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/></svg>
+                    menu_items
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">restaurant_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">name</span><span class="field-type">VARCHAR(255)</span></div>
+                    <div class="field"><span class="field-name">description</span><span class="field-type">TEXT</span></div>
+                    <div class="field"><span class="field-name">price</span><span class="field-type">DECIMAL(10,2)</span></div>
+                </div>
+            </div>
+
+            <!-- Nutrition Entity -->
+            <div class="entity nutrition">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    nutrition_info
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">menu_item_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">calories</span><span class="field-type">INT</span></div>
+                    <div class="field"><span class="field-name">protein</span><span class="field-type">DECIMAL(5,2)</span></div>
+                    <div class="field"><span class="field-name">carbs</span><span class="field-type">DECIMAL(5,2)</span></div>
+                    <div class="field"><span class="field-name">fat</span><span class="field-type">DECIMAL(5,2)</span></div>
+                    <div class="field"><span class="field-name">source</span><span class="field-type">ENUM</span></div>
+                </div>
+            </div>
+
+            <!-- Orders Entity -->
+            <div class="entity orders">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    meal_logs
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">user_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">menu_item_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">logged_at</span><span class="field-type">TIMESTAMP</span></div>
+                    <div class="field"><span class="field-name">quantity</span><span class="field-type">INT</span></div>
+                </div>
+            </div>
+
+            <!-- Images Entity -->
+            <div class="entity images">
+                <div class="entity-header">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    image_embeddings (Vector DB)
+                </div>
+                <div class="entity-body">
+                    <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-key fk">FK</span><span class="field-name">menu_item_id</span><span class="field-type">UUID</span></div>
+                    <div class="field"><span class="field-name">embedding</span><span class="field-type">VECTOR(512)</span></div>
+                    <div class="field"><span class="field-name">s3_url</span><span class="field-type">VARCHAR(500)</span></div>
+                    <div class="field"><span class="field-name">vlm_analysis</span><span class="field-type">JSONB</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Types -->
+        <div class="db-types">
+            <div class="db-card postgres">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#336791"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    PostgreSQL
+                </h3>
+                <p>Primary relational database for structured data</p>
+                <ul>
+                    <li>Users, restaurants, menu items</li>
+                    <li>Nutrition data, meal logs</li>
+                    <li>JSONB for flexible schemas</li>
+                    <li>PostGIS for geospatial queries</li>
+                </ul>
+            </div>
+
+            <div class="db-card redis">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#dc382d"><path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>
+                    Redis Cache
+                </h3>
+                <p>In-memory caching and session storage</p>
+                <ul>
+                    <li>User sessions & auth tokens</li>
+                    <li>LLM prefix cache per user</li>
+                    <li>API response caching</li>
+                    <li>Rate limiting counters</li>
+                </ul>
+            </div>
+
+            <div class="db-card vector">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#00d4aa"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    Vector Database
+                </h3>
+                <p>Embeddings for image similarity search</p>
+                <ul>
+                    <li>Food image embeddings (512-dim)</li>
+                    <li>Cosine similarity search</li>
+                    <li>VLM analysis results</li>
+                    <li>HNSW index for fast retrieval</li>
+                </ul>
+            </div>
+
+            <div class="db-card s3">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ff9900"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                    S3 Object Storage
+                </h3>
+                <p>Blob storage for images and assets</p>
+                <ul>
+                    <li>User-uploaded food images</li>
+                    <li>Restaurant menu photos</li>
+                    <li>CDN integration</li>
+                    <li>Lifecycle policies for archival</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Replication -->
+        <div class="replication">
+            <h2>Database Replication Strategy</h2>
+            <div class="replication-flow">
+                <div class="db-node master">
+                    <h4>Primary (US-East)</h4>
+                    <p>Write operations</p>
+                    <div class="badge">Master</div>
+                </div>
+                <span class="arrow">→</span>
+                <div class="db-node replica">
+                    <h4>Replica (EU)</h4>
+                    <p>Read operations</p>
+                    <div class="badge">Async Replica</div>
+                </div>
+                <span class="arrow">→</span>
+                <div class="db-node replica">
+                    <h4>Replica (Asia)</h4>
+                    <p>Read operations</p>
+                    <div class="badge">Async Replica</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indexes -->
+        <div class="indexes">
+            <h3>Key Indexes for Performance</h3>
+            <div class="index-grid">
+                <div class="index-item">
+                    <strong>Geospatial Index</strong>
+                    <code>restaurants(location) USING GIST</code>
+                </div>
+                <div class="index-item">
+                    <strong>User Lookup</strong>
+                    <code>users(email) UNIQUE</code>
+                </div>
+                <div class="index-item">
+                    <strong>Menu Search</strong>
+                    <code>menu_items(restaurant_id, name)</code>
+                </div>
+                <div class="index-item">
+                    <strong>Meal History</strong>
+                    <code>meal_logs(user_id, logged_at DESC)</code>
+                </div>
+                <div class="index-item">
+                    <strong>Vector Search</strong>
+                    <code>embeddings USING HNSW (cosine)</code>
+                </div>
+                <div class="index-item">
+                    <strong>Full-Text Search</strong>
+                    <code>menu_items(description) USING GIN</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

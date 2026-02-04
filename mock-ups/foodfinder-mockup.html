@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFinder - Mobile App Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .screen-container {
+            text-align: center;
+        }
+
+        .screen-label {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .phone {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 55px;
+            padding: 12px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 2px #333;
+            position: relative;
+        }
+
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 35px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            border-radius: 45px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 50px;
+            padding: 15px 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            background: inherit;
+            position: relative;
+            z-index: 5;
+        }
+
+        .status-bar .time { color: #000; }
+        .status-bar .icons { display: flex; gap: 5px; color: #000; }
+
+        /* Home Screen Styles */
+        .home-screen {
+            background: linear-gradient(180deg, #ff6b6b 0%, #ee5a5a 100%);
+        }
+
+        .home-screen .status-bar { color: #fff; }
+        .home-screen .status-bar .time,
+        .home-screen .status-bar .icons { color: #fff; }
+
+        .home-header {
+            padding: 10px 25px 25px;
+            color: #fff;
+        }
+
+        .greeting {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .user-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .search-bar {
+            margin: 0 25px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .search-bar svg {
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            font-size: 16px;
+            width: 100%;
+            color: #333;
+        }
+
+        .search-bar input::placeholder {
+            color: #aaa;
+        }
+
+        .map-container {
+            margin: 20px 25px;
+            height: 200px;
+            background: url('waterloo-map.png') center center;
+            background-size: cover;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+        }
+
+        .map-pin {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ff6b6b;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+        }
+
+        .map-pin::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .map-pin.pin1 { top: 70px; left: 140px; }
+        .map-pin.pin2 { top: 90px; left: 220px; }
+        .map-pin.pin3 { top: 50px; left: 260px; background: #4ecdc4; box-shadow: 0 4px 15px rgba(78,205,196,0.4); }
+
+        .user-location {
+            position: absolute;
+            top: 100px;
+            left: 180px;
+            width: 20px;
+            height: 20px;
+            background: #4a90d9;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 8px rgba(74,144,217,0.2);
+        }
+
+        .food-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .section-header {
+            padding: 20px 25px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .see-all {
+            font-size: 14px;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .restaurant-card {
+            margin: 0 25px 15px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .restaurant-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+        }
+
+        .restaurant-info {
+            flex: 1;
+        }
+
+        .restaurant-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .restaurant-meta {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .restaurant-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tag.calories {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag.distance {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .tag.rating {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: #fff;
+            border-radius: 30px 30px 45px 45px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: #ff6b6b;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Restaurant List Screen */
+        .list-screen {
+            background: #f8f9fa;
+        }
+
+        .list-header {
+            background: #fff;
+            padding: 60px 25px 20px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .list-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .filter-chip {
+            padding: 10px 18px;
+            background: #f0f0f0;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .filter-chip.active {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .list-content {
+            padding: 20px 0;
+            height: calc(100% - 200px);
+            overflow-y: auto;
+        }
+
+        .list-card {
+            margin: 0 20px 15px;
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .list-card-img {
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .list-card-img.food1 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .list-card-img.food2 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .list-card-img.food3 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .list-card-img .card-icon {
+            position: absolute;
+            bottom: -15px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .list-card-body {
+            padding: 25px 20px 20px;
+        }
+
+        .list-card-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .list-card-cuisine {
+            font-size: 14px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .list-card-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .stat svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Food Details Screen */
+        .details-screen {
+            background: #fff;
+        }
+
+        .details-hero {
+            height: 300px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-icon {
+            width: 140px;
+            height: 140px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            padding: 20px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 55px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .fav-btn {
+            position: absolute;
+            top: 55px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .details-body {
+            background: #fff;
+            margin-top: -40px;
+            border-radius: 40px 40px 0 0;
+            padding: 30px 25px;
+            position: relative;
+        }
+
+        .details-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            max-width: 200px;
+        }
+
+        .details-restaurant {
+            font-size: 16px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .price-tag {
+            position: absolute;
+            top: 35px;
+            right: 25px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .nutrition-item {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+
+        .nutrition-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .nutrition-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .nutrition-item.highlight {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+        }
+
+        .nutrition-item.highlight .nutrition-value,
+        .nutrition-item.highlight .nutrition-label {
+            color: #fff;
+        }
+
+        .section-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .ingredients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ingredient {
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .add-btn {
+            position: absolute;
+            bottom: 100px;
+            left: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: #fff;
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 17px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+        }
+
+        /* Flow arrows */
+        .flow-arrow {
+            position: absolute;
+            top: 50%;
+            right: -45px;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            body {
+                gap: 40px;
+            }
+            .flow-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen 1: Home -->
+    <div class="screen-container">
+        <div class="screen-label">Home Screen</div>
+        <div class="phone">
+            <div class="screen home-screen">
+                <div class="status-bar">
+                    <span class="time">9:41</span>
+                    <span class="icons">
+                        <svg width="18" height="12" fill="currentColor" viewBox="0 0 18 12"><path d="M1 4h2v8H1zM5 2h2v10H5zM9 0h2v12H9zM13 3h2v9h-2z"/></svg>
+                        <svg width="16" height="12" fill="currentColor" viewBox="0 0 16 12"><path d="M8 2C4.5 2 1.5 4 0 7c1.5 3 4.5 5 8 5s6.5-2 8-5c-1.5-3-4.5-5-8-5zm0 8c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"/></svg>
+                        <svg width="25" height="12" fill="currentColor" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="3" width="15" height="6" rx="1"/><rect x="22" y="4" width="2" height="4" rx="0.5"/></svg>
+                    </span>
+                </div>
+
+                <div class="home-header">
+                    <div class="greeting">Good morning</div>
+                    <div class="user-name">What's for lunch?</div>
+                </div>
+
+                <div class="search-bar">
+                    <svg width="20" height="20" fill="none" stroke="#999" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" placeholder="Find me high protein meals nearby...">
+                </div>
+
+                <div class="map-container">
+                    <div class="map-pin pin1"></div>
+                    <div class="map-pin pin2"></div>
+                    <div class="map-pin pin3"></div>
+                    <div class="user-location"></div>
+                </div>
+
+                <div class="section-header">
+                    <span class="section-title">Nearby</span>
+                    <span class="see-all">See all</span>
+                </div>
+
+                <div class="restaurant-card">
+                    <div class="restaurant-img">
+                        <svg class="food-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="32" r="28" fill="#FFF3E0"/>
+                            <path d="M20 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
+                            <ellipse cx="32" cy="36" rx="16" ry="8" fill="#D2691E"/>
+                            <ellipse cx="32" cy="34" rx="14" ry="6" fill="#F4A460"/>
+                            <circle cx="26" cy="33" r="2" fill="#228B22"/>
+                            <circle cx="32" cy="32" r="2" fill="#FF6347"/>
+                            <circle cx="38" cy="33" r="2" fill="#228B22"/>
+                        </svg>
+                    </div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">Pho Dau Bo</div>
+                        <div class="restaurant-meta">Vietnamese • Open until 9 PM</div>
+                        <div class="restaurant-tags">
+                            <span class="tag calories">~520 cal</span>
+                            <span class="tag distance">0.2 mi</span>
+                            <span class="tag rating">★ 4.7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-nav">
+                    <div class="nav-item active">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span>Home</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <span>Search</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span>Favorites</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span>Profile</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flow-arrow">→</div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Restaurant List -->
+    <div class="screen-container">
+        <div class="screen-label">Restaurant List</div>
+        <div class="phone">
+            <div class="screen list-screen">
+                <div class="status-bar">
+                    <span class="time">9:41</span>
+                    <span class="icons">
+                        <svg width="18" height="12" fill="currentColor" viewBox="0 0 18 12"><path d="M1 4h2v8H1zM5 2h2v10H5zM9 0h2v12H9zM13 3h2v9h-2z"/></svg>
+                        <svg width="25" height="12" fill="currentColor" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="3" width="15" height="6" rx="1"/><rect x="22" y="4" width="2" height="4" rx="0.5"/></svg>
+                    </span>
+                </div>
+
+                <div class="list-header">
+                    <div class="list-title">Nearby Restaurants</div>
+                    <div class="filter-row">
+                        <span class="filter-chip active">All</span>
+                        <span class="filter-chip">Low Cal</span>
+                        <span class="filter-chip">High Protein</span>
+                        <span class="filter-chip">Vegan</span>
+                    </div>
+                </div>
+
+                <div class="list-content">
+                    <div class="list-card">
+                        <div class="list-card-img food1">
+                            <span class="card-badge">★ 4.7</span>
+                            <svg class="card-icon" viewBox="0 0 64 64" fill="none">
+                                <circle cx="32" cy="32" r="28" fill="#FFF8E1"/>
+                                <ellipse cx="32" cy="38" rx="20" ry="10" fill="#D2691E"/>
+                                <ellipse cx="32" cy="35" rx="18" ry="8" fill="#FFCC80"/>
+                                <path d="M18 32c0-8 6-14 14-14s14 6 14 14" stroke="#8B4513" stroke-width="3"/>
+                                <circle cx="25" cy="34" r="3" fill="#8BC34A"/>
+                                <circle cx="32" cy="32" r="2" fill="#FF5722"/>
+                                <circle cx="39" cy="34" r="3" fill="#8BC34A"/>
+                            </svg>
+                        </div>
+                        <div class="list-card-body">
+                            <div class="list-card-name">Pho Dau Bo</div>
+                            <div class="list-card-cuisine">Vietnamese • Pho • Noodles</div>
+                            <div class="list-card-stats">
+                                <span class="stat">
+                                    <svg fill="#4caf50" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                    ~520 cal avg
+                                </span>
+                                <span class="stat">
+                                    <svg fill="#2196f3" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                                    0.2 mi
+                                </span>
+                                <span class="stat">
+                                    <svg fill="#ff9800" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    12 min
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-card">
+                        <div class="list-card-img food2">
+                            <span class="card-badge">★ 4.5</span>
+                            <svg class="card-icon" viewBox="0 0 64 64" fill="none">
+                                <circle cx="32" cy="32" r="28" fill="#E8F5E9"/>
+                                <ellipse cx="32" cy="36" rx="18" ry="12" fill="#4CAF50"/>
+                                <ellipse cx="32" cy="34" rx="16" ry="10" fill="#81C784"/>
+                                <circle cx="26" cy="32" r="4" fill="#FF5722"/>
+                                <circle cx="38" cy="34" r="3" fill="#FFC107"/>
+                                <circle cx="32" cy="30" r="3" fill="#9C27B0"/>
+                                <path d="M24 38c2 2 6 3 8 3s6-1 8-3" stroke="#2E7D32" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="list-card-body">
+                            <div class="list-card-name">Shawarma Plus</div>
+                            <div class="list-card-cuisine">Middle Eastern • Wraps • Halal</div>
+                            <div class="list-card-stats">
+                                <span class="stat">
+                                    <svg fill="#4caf50" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                    ~680 cal avg
+                                </span>
+                                <span class="stat">
+                                    <svg fill="#2196f3" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                                    0.3 mi
+                                </span>
+                                <span class="stat">
+                                    <svg fill="#ff9800" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    8 min
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span>Home</span>
+                    </div>
+                    <div class="nav-item active">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <span>Search</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span>Favorites</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span>Profile</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flow-arrow">→</div>
+        </div>
+    </div>
+
+    <!-- Screen 3: Food Details -->
+    <div class="screen-container">
+        <div class="screen-label">Food Details</div>
+        <div class="phone">
+            <div class="screen details-screen">
+                <div class="details-hero">
+                    <div class="back-btn">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </div>
+                    <svg class="hero-icon" viewBox="0 0 100 100" fill="none">
+                        <circle cx="50" cy="55" r="40" fill="#FFF8E1"/>
+                        <ellipse cx="50" cy="60" rx="35" ry="20" fill="#8B4513"/>
+                        <ellipse cx="50" cy="55" rx="32" ry="17" fill="#D4A574"/>
+                        <path d="M25 50 Q30 35 50 35 Q70 35 75 50" stroke="#F5DEB3" stroke-width="4" fill="none"/>
+                        <circle cx="35" cy="52" r="4" fill="#8BC34A"/>
+                        <circle cx="50" cy="48" r="3" fill="#FF5722"/>
+                        <circle cx="65" cy="52" r="4" fill="#8BC34A"/>
+                        <ellipse cx="42" cy="55" rx="6" ry="3" fill="#FFCCBC"/>
+                        <ellipse cx="58" cy="55" rx="6" ry="3" fill="#FFCCBC"/>
+                    </svg>
+                    <div class="fav-btn">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                </div>
+
+                <div class="details-body">
+                    <div class="details-name">Pho Dac Biet</div>
+                    <div class="details-restaurant">Pho Dau Bo</div>
+                    <div class="price-tag">$16.99</div>
+
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item highlight">
+                            <div class="nutrition-value">520</div>
+                            <div class="nutrition-label">Calories</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value">38g</div>
+                            <div class="nutrition-label">Protein</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value">45g</div>
+                            <div class="nutrition-label">Carbs</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value">18g</div>
+                            <div class="nutrition-label">Fat</div>
+                        </div>
+                    </div>
+
+                    <div class="section-label">Description</div>
+                    <p class="description">Special combination pho with rare beef, well-done brisket, and meatballs in aromatic beef broth. Served with fresh herbs, bean sprouts, and lime.</p>
+
+                    <div class="section-label">Ingredients</div>
+                    <div class="ingredients">
+                        <span class="ingredient">Rice Noodles</span>
+                        <span class="ingredient">Beef Brisket</span>
+                        <span class="ingredient">Rare Beef</span>
+                        <span class="ingredient">Basil</span>
+                        <span class="ingredient">Bean Sprouts</span>
+                    </div>
+
+                    <button class="add-btn">Add to Meal Tracker</button>
+                </div>
+
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span>Home</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <span>Search</span>
+                    </div>
+                    <div class="nav-item active">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span>Favorites</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span>Profile</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

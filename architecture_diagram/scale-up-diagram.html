@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFinder - Geo-Distributed Scale-Up Architecture</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 30px;
+        }
+        .diagram {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* World Map Container */
+        .world-container {
+            position: relative;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+
+        .world-map {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background:
+                radial-gradient(ellipse at 25% 40%, #81c784 0%, transparent 25%),
+                radial-gradient(ellipse at 75% 35%, #81c784 0%, transparent 20%),
+                radial-gradient(ellipse at 50% 60%, #81c784 0%, transparent 15%),
+                radial-gradient(ellipse at 15% 55%, #a5d6a7 0%, transparent 12%),
+                radial-gradient(ellipse at 85% 55%, #a5d6a7 0%, transparent 18%),
+                radial-gradient(ellipse at 45% 35%, #c8e6c9 0%, transparent 10%);
+        }
+
+        /* Region Nodes */
+        .region {
+            position: absolute;
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 3px solid;
+            min-width: 140px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .region.primary {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .region.secondary {
+            border-color: #2196f3;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        .region.edge {
+            border-color: #ff9800;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        }
+
+        .region-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .region-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+        }
+
+        .region-type {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .region-stats {
+            margin-top: 8px;
+            font-size: 10px;
+            color: #888;
+        }
+
+        /* Positions - spread out to prevent overlap */
+        .region.na-west { top: 30px; left: 3%; }
+        .region.na-east { top: 180px; left: 3%; }
+        .region.eu-west { top: 30px; left: 35%; }
+        .region.eu-central { top: 180px; left: 35%; }
+        .region.asia-south { top: 180px; left: 67%; }
+        .region.asia-east { top: 30px; left: 67%; }
+
+        /* Connection Lines */
+        .connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .connections svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Load Balancer Section */
+        .lb-section {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .lb-card {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .lb-card h3 {
+            font-size: 16px;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .lb-card p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Autoscaling Section */
+        .autoscale-section {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .autoscale-section h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .scale-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .scale-step {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            min-width: 150px;
+        }
+
+        .scale-step.trigger {
+            border: 2px solid #f44336;
+            background: #ffebee;
+        }
+
+        .scale-step.action {
+            border: 2px solid #4caf50;
+            background: #e8f5e9;
+        }
+
+        .scale-step.result {
+            border: 2px solid #2196f3;
+            background: #e3f2fd;
+        }
+
+        .scale-step h4 {
+            font-size: 13px;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .scale-step p {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 24px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+        }
+
+        .metric-card.latency { border-color: #4caf50; }
+        .metric-card.throughput { border-color: #2196f3; }
+        .metric-card.availability { border-color: #ff9800; }
+        .metric-card.capacity { border-color: #9c27b0; }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .metric-desc {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-dot.primary { background: #4caf50; }
+        .legend-dot.secondary { background: #2196f3; }
+        .legend-dot.edge { background: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="diagram">
+        <h1>Geo-Distributed Scale-Up Architecture</h1>
+        <p class="subtitle">Multi-region deployment with automatic scaling and load balancing</p>
+
+        <!-- World Map with Regions -->
+        <div class="world-container">
+            <div class="world-map">
+                <!-- Connection Lines SVG -->
+                <svg class="connections" viewBox="0 0 1000 380">
+                    <!-- NA West to NA East (vertical) -->
+                    <line x1="100" y1="130" x2="100" y2="180" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <!-- NA to EU (horizontal) -->
+                    <line x1="170" y1="100" x2="380" y2="100" stroke="#4caf50" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <!-- EU West to EU Central (vertical) -->
+                    <line x1="430" y1="130" x2="430" y2="180" stroke="#4caf50" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <!-- EU to Asia (horizontal) -->
+                    <line x1="500" y1="100" x2="720" y2="100" stroke="#2196f3" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <!-- Asia East to Asia South (vertical) -->
+                    <line x1="760" y1="130" x2="760" y2="180" stroke="#2196f3" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <!-- Cross-region backbone -->
+                    <path d="M 100 80 Q 500 20 760 80" stroke="#9c27b0" stroke-width="2" fill="none" opacity="0.4"/>
+                </svg>
+
+                <!-- NA West -->
+                <div class="region edge na-west">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#ff9800" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">US West</div>
+                    <div class="region-type">Edge Node</div>
+                    <div class="region-stats">3 instances | CDN</div>
+                </div>
+
+                <!-- NA East -->
+                <div class="region primary na-east">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#4caf50" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">US East</div>
+                    <div class="region-type">Primary Region</div>
+                    <div class="region-stats">8 instances | Master DB</div>
+                </div>
+
+                <!-- EU West -->
+                <div class="region secondary eu-west">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#2196f3" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">EU West</div>
+                    <div class="region-type">Secondary Region</div>
+                    <div class="region-stats">5 instances | Replica</div>
+                </div>
+
+                <!-- EU Central -->
+                <div class="region primary eu-central">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#4caf50" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">EU Central</div>
+                    <div class="region-type">Primary Region</div>
+                    <div class="region-stats">6 instances | Master DB</div>
+                </div>
+
+                <!-- Asia South -->
+                <div class="region edge asia-south">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#ff9800" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">Asia South</div>
+                    <div class="region-type">Edge Node</div>
+                    <div class="region-stats">4 instances | CDN</div>
+                </div>
+
+                <!-- Asia East -->
+                <div class="region secondary asia-east">
+                    <div class="region-icon">
+                        <svg width="24" height="24" fill="#2196f3" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <div class="region-name">Asia East</div>
+                    <div class="region-type">Secondary Region</div>
+                    <div class="region-stats">5 instances | Replica</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load Balancer Section -->
+        <div class="lb-section">
+            <div class="lb-card">
+                <h3>Global Load Balancer</h3>
+                <p>DNS-based routing to nearest healthy region</p>
+                <p style="margin-top: 10px; font-weight: 600; color: #9c27b0;">Latency-based routing</p>
+            </div>
+            <div class="lb-card">
+                <h3>Regional Load Balancer</h3>
+                <p>Round-robin distribution across instances</p>
+                <p style="margin-top: 10px; font-weight: 600; color: #9c27b0;">Health check: 10s interval</p>
+            </div>
+            <div class="lb-card">
+                <h3>CDN Edge Caching</h3>
+                <p>Static assets + API response caching</p>
+                <p style="margin-top: 10px; font-weight: 600; color: #9c27b0;">TTL: 5min - 24hr</p>
+            </div>
+        </div>
+
+        <!-- Autoscaling Flow -->
+        <div class="autoscale-section">
+            <h2>Autoscaling Pipeline</h2>
+            <div class="scale-flow">
+                <div class="scale-step trigger">
+                    <h4>Trigger</h4>
+                    <p>CPU > 70% for 2min<br/>or RPS > threshold</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="scale-step action">
+                    <h4>Scale Decision</h4>
+                    <p>Add 2 instances<br/>per scaling event</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="scale-step result">
+                    <h4>Warm-up</h4>
+                    <p>Health check pass<br/>Join load balancer</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="scale-step">
+                    <h4>Cool-down</h4>
+                    <p>5 min wait before<br/>next scale event</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scaling Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card latency">
+                <div class="metric-value">&lt;50ms</div>
+                <div class="metric-label">P95 Latency Target</div>
+                <div class="metric-desc">Regional edge routing</div>
+            </div>
+            <div class="metric-card throughput">
+                <div class="metric-value">10K</div>
+                <div class="metric-label">Requests/sec</div>
+                <div class="metric-desc">Per region capacity</div>
+            </div>
+            <div class="metric-card availability">
+                <div class="metric-value">99.9%</div>
+                <div class="metric-label">Uptime SLA</div>
+                <div class="metric-desc">Multi-region failover</div>
+            </div>
+            <div class="metric-card capacity">
+                <div class="metric-value">2-50</div>
+                <div class="metric-label">Instance Range</div>
+                <div class="metric-desc">Auto-scale boundaries</div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot primary"></div>
+                <span>Primary Region (Master DB)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot secondary"></div>
+                <span>Secondary Region (Read Replica)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot edge"></div>
+                <span>Edge Node (CDN + Cache)</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
