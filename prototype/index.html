@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrubFindr - Smart Meal Discovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ==================== SPLASH / LOGIN ==================== -->
+<div id="splash-screen" class="screen active">
+    <div class="splash-bg">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h1 class="splash-title">GrubFindr</h1>
+            <p class="splash-subtitle">AI-Powered Meal Discovery</p>
+            <p class="splash-desc">Find the perfect dish based on your taste, nutrition goals, and location.</p>
+
+            <div class="login-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email" value="demo@grubfindr.com">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" value="password">
+                </div>
+                <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+                <button class="btn-secondary" onclick="handleLogin()">Continue with Google <i class="fab fa-google"></i></button>
+                <p class="login-footer">New here? <a href="#" onclick="handleLogin()">Create Account</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ONBOARDING ==================== -->
+<div id="onboarding-screen" class="screen">
+    <div class="onboarding-container">
+        <div class="onboarding-progress">
+            <div class="progress-bar" id="onboarding-progress-bar"></div>
+        </div>
+        <div class="onboarding-step active" id="onboard-step-1">
+            <h2>Tell us about you</h2>
+            <p>Help us personalize your meal recommendations</p>
+            <div class="preference-grid">
+                <div class="pref-card" onclick="togglePref(this)" data-pref="high-protein">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>High Protein</span>
+                </div>
+                <div class="pref-card" onclick="togglePref(this)" data-pref="low-calorie">
+                    <i class="fas fa-leaf"></i>
+                    <span>Low Calorie</span>
+                </div>
+                <div class="pref-card" onclick="togglePref(this)" data-pref="keto">
+                    <i class="fas fa-bacon"></i>
+                    <span>Keto</span>
+                </div>
+                <div class="pref-card" onclick="togglePref(this)" data-pref="vegan">
+                    <i class="fas fa-seedling"></i>
+                    <span>Vegan</span>
+                </div>
+                <div class="pref-card" onclick="togglePref(this)" data-pref="halal">
+                    <i class="fas fa-moon"></i>
+                    <span>Halal</span>
+                </div>
+                <div class="pref-card" onclick="togglePref(this)" data-pref="gluten-free">
+                    <i class="fas fa-bread-slice"></i>
+                    <span>Gluten Free</span>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="nextOnboardStep()">Next</button>
+        </div>
+        <div class="onboarding-step" id="onboard-step-2">
+            <h2>Set your goals</h2>
+            <p>We'll tailor suggestions to your daily targets</p>
+            <div class="goal-inputs">
+                <div class="goal-item">
+                    <label>Daily Calorie Target</label>
+                    <div class="slider-container">
+                        <input type="range" min="1200" max="3500" value="2200" id="cal-slider" oninput="updateSliderLabel(this, 'cal-val', ' cal')">
+                        <span id="cal-val">2200 cal</span>
+                    </div>
+                </div>
+                <div class="goal-item">
+                    <label>Protein Goal</label>
+                    <div class="slider-container">
+                        <input type="range" min="30" max="250" value="120" id="protein-slider" oninput="updateSliderLabel(this, 'protein-val', 'g')">
+                        <span id="protein-val">120g</span>
+                    </div>
+                </div>
+                <div class="goal-item">
+                    <label>Max Budget per Meal</label>
+                    <div class="slider-container">
+                        <input type="range" min="5" max="50" value="20" id="budget-slider" oninput="updateSliderLabel(this, 'budget-val', '', '$')">
+                        <span id="budget-val">$20</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="nextOnboardStep()">Next</button>
+        </div>
+        <div class="onboarding-step" id="onboard-step-3">
+            <h2>Enable Location</h2>
+            <p>Find the best dishes near you</p>
+            <div class="location-prompt">
+                <div class="location-icon-big">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <p>GrubFindr uses your location to find nearby restaurants and estimate walking/driving times.</p>
+                <button class="btn-primary" onclick="finishOnboarding()"><i class="fas fa-location-arrow"></i> Allow Location Access</button>
+                <button class="btn-text" onclick="finishOnboarding()">Skip for now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MAIN APP SHELL ==================== -->
+<div id="app-shell" class="screen">
+    <!-- Top status bar -->
+    <div class="app-status-bar">
+        <span>9:41</span>
+        <span class="status-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </span>
+    </div>
+
+    <!-- Page container -->
+    <div class="page-container">
+
+        <!-- ===== HOME PAGE ===== -->
+        <div class="page active" id="page-home">
+            <div class="home-hero">
+                <div class="home-header-row">
+                    <div>
+                        <p class="greeting" id="greeting-text">Good afternoon</p>
+                        <h1 class="home-title">What's for lunch?</h1>
+                    </div>
+                    <div class="avatar" onclick="navigateTo('profile')">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="search-bar" onclick="navigateTo('search')">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Find high protein meals nearby..." readonly>
+                    <div class="ai-badge">AI</div>
+                </div>
+            </div>
+
+            <div class="home-body">
+                <!-- Map -->
+                <div class="map-section">
+                    <div class="map-placeholder" id="home-map">
+                        <div class="map-overlay">
+                            <div class="map-pin" style="top:35%;left:30%;" onclick="showRestaurant(0)"><i class="fas fa-utensils"></i></div>
+                            <div class="map-pin accent" style="top:50%;left:55%;" onclick="showRestaurant(1)"><i class="fas fa-utensils"></i></div>
+                            <div class="map-pin" style="top:25%;left:70%;" onclick="showRestaurant(2)"><i class="fas fa-utensils"></i></div>
+                            <div class="map-pin secondary" style="top:60%;left:40%;" onclick="showRestaurant(3)"><i class="fas fa-utensils"></i></div>
+                            <div class="map-pin" style="top:45%;left:80%;" onclick="showRestaurant(4)"><i class="fas fa-utensils"></i></div>
+                            <div class="user-dot" style="top:48%;left:50%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendation -->
+                <div class="ai-rec-section" onclick="navigateTo('ai-chat')">
+                    <div class="ai-rec-card">
+                        <div class="ai-rec-icon"><i class="fas fa-robot"></i></div>
+                        <div class="ai-rec-text">
+                            <p class="ai-rec-title">AI Pick for You</p>
+                            <p class="ai-rec-desc">Based on your goals, try the <strong>Grilled Chicken Bowl</strong> at Shawarma Plus - 42g protein, only 580 cal!</p>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <!-- Nearby -->
+                <div class="section-header">
+                    <h2>Nearby</h2>
+                    <a href="#" onclick="navigateTo('search'); return false;">See all</a>
+                </div>
+
+                <div class="restaurant-scroll" id="nearby-list">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Meal Tracker Summary -->
+                <div class="section-header">
+                    <h2>Today's Tracking</h2>
+                    <a href="#" onclick="navigateTo('tracker'); return false;">Details</a>
+                </div>
+                <div class="tracker-summary">
+                    <div class="tracker-ring-container">
+                        <div class="tracker-ring" id="cal-ring">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" stroke-width="8"/>
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#ff6b6b" stroke-width="8"
+                                    stroke-dasharray="264" stroke-dashoffset="132" stroke-linecap="round"
+                                    transform="rotate(-90 50 50)"/>
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value">1,120</span>
+                                <span class="ring-unit">cal</span>
+                            </div>
+                        </div>
+                        <div class="tracker-ring" id="protein-ring">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" stroke-width="8"/>
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#4ecdc4" stroke-width="8"
+                                    stroke-dasharray="264" stroke-dashoffset="172" stroke-linecap="round"
+                                    transform="rotate(-90 50 50)"/>
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value">68g</span>
+                                <span class="ring-unit">protein</span>
+                            </div>
+                        </div>
+                        <div class="tracker-ring" id="budget-ring">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" stroke-width="8"/>
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="#667eea" stroke-width="8"
+                                    stroke-dasharray="264" stroke-dashoffset="198" stroke-linecap="round"
+                                    transform="rotate(-90 50 50)"/>
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value">$12</span>
+                                <span class="ring-unit">spent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: 100px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== SEARCH / RESTAURANT LIST PAGE ===== -->
+        <div class="page" id="page-search">
+            <div class="search-page-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="back-btn" onclick="goBack()" style="background:#f0f0f5;color:#333;width:38px;height:38px;font-size:16px;"><i class="fas fa-arrow-left"></i></button>
+                    <h1>Discover</h1>
+                </div>
+                <div class="search-bar-full">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search dishes, cuisines, restaurants..." oninput="filterRestaurants()">
+                    <div class="ai-badge" onclick="navigateTo('ai-chat')">AI</div>
+                </div>
+                <div class="filter-chips" id="filter-chips">
+                    <button class="chip active" onclick="setFilter(this, 'all')">All</button>
+                    <button class="chip" onclick="setFilter(this, 'low-cal')">Low Cal</button>
+                    <button class="chip" onclick="setFilter(this, 'high-protein')">High Protein</button>
+                    <button class="chip" onclick="setFilter(this, 'vegan')">Vegan</button>
+                    <button class="chip" onclick="setFilter(this, 'halal')">Halal</button>
+                    <button class="chip" onclick="setFilter(this, 'under-15')">Under $15</button>
+                </div>
+                <div class="sort-row">
+                    <span>Sort by:</span>
+                    <select id="sort-select" onchange="filterRestaurants()">
+                        <option value="distance">Distance</option>
+                        <option value="rating">Rating</option>
+                        <option value="calories">Calories (Low)</option>
+                        <option value="protein">Protein (High)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-results" id="search-results">
+                <!-- Populated by JS -->
+            </div>
+            <div style="height: 100px;"></div>
+        </div>
+
+        <!-- ===== RESTAURANT DETAIL PAGE ===== -->
+        <div class="page" id="page-restaurant">
+            <div class="restaurant-detail" id="restaurant-detail">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ===== FOOD DETAIL PAGE ===== -->
+        <div class="page" id="page-food-detail">
+            <div class="food-detail" id="food-detail">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ===== AI CHAT PAGE ===== -->
+        <div class="page" id="page-ai-chat">
+            <div class="chat-header">
+                <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                <div class="chat-header-info">
+                    <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h3>GrubFindr AI</h3>
+                        <span class="online-dot"></span> <span class="chat-status">Online</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-msg bot">
+                    <div class="msg-bubble">Hey! I'm your GrubFindr AI assistant. I can help you find the perfect meal based on your preferences, nutrition goals, and location. What are you in the mood for?</div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <div class="quick-prompts">
+                    <button onclick="sendQuickPrompt('High protein lunch under $15')">High protein lunch under $15</button>
+                    <button onclick="sendQuickPrompt('Low calorie dinner nearby')">Low calorie dinner nearby</button>
+                    <button onclick="sendQuickPrompt('Best rated restaurants within 0.5 miles')">Best nearby</button>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Ask me anything about food..." onkeydown="if(event.key==='Enter')sendChat()">
+                    <button onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FAVORITES PAGE ===== -->
+        <div class="page" id="page-favorites">
+            <div class="page-header-simple">
+                <h1>Favorites</h1>
+            </div>
+            <div id="favorites-list" class="favorites-list">
+                <!-- Populated by JS -->
+            </div>
+            <div class="empty-state" id="fav-empty" style="display:none;">
+                <i class="fas fa-heart"></i>
+                <p>No favorites yet</p>
+                <span>Tap the heart on any dish to save it here</span>
+            </div>
+            <div style="height: 100px;"></div>
+        </div>
+
+        <!-- ===== MEAL TRACKER PAGE ===== -->
+        <div class="page" id="page-tracker">
+            <div class="page-header-simple">
+                <h1>Meal Tracker</h1>
+                <p class="tracker-date" id="tracker-date"></p>
+            </div>
+            <div class="tracker-detail">
+                <div class="tracker-macro-bars">
+                    <div class="macro-bar-item">
+                        <div class="macro-bar-header">
+                            <span>Calories</span>
+                            <span id="tracker-cal">1,120 / 2,200</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-bar-fill cal" style="width:51%"></div>
+                        </div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <div class="macro-bar-header">
+                            <span>Protein</span>
+                            <span id="tracker-prot">68g / 120g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-bar-fill prot" style="width:57%"></div>
+                        </div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <div class="macro-bar-header">
+                            <span>Carbs</span>
+                            <span id="tracker-carb">95g / 275g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-bar-fill carb" style="width:35%"></div>
+                        </div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <div class="macro-bar-header">
+                            <span>Fat</span>
+                            <span id="tracker-fat">38g / 73g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-bar-fill fat" style="width:52%"></div>
+                        </div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <div class="macro-bar-header">
+                            <span>Budget</span>
+                            <span id="tracker-budget">$12.50 / $20.00</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-bar-fill budget" style="width:63%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="tracker-section-title">Logged Meals</h3>
+                <div id="logged-meals" class="logged-meals">
+                    <!-- Populated by JS -->
+                </div>
+
+                <button class="btn-primary btn-log" onclick="navigateTo('search')">
+                    <i class="fas fa-plus"></i> Log a Meal
+                </button>
+            </div>
+            <div style="height: 100px;"></div>
+        </div>
+
+        <!-- ===== PROFILE PAGE ===== -->
+        <div class="page" id="page-profile">
+            <div class="profile-header">
+                <button class="back-btn" onclick="goBack()" style="position:absolute;top:15px;left:15px;"><i class="fas fa-arrow-left"></i></button>
+                <div class="profile-avatar-big">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2>Demo User</h2>
+                <p>demo@grubfindr.com</p>
+            </div>
+            <div class="profile-sections">
+                <div class="profile-card">
+                    <h3><i class="fas fa-bullseye"></i> Daily Goals</h3>
+                    <div class="profile-goal-row">
+                        <span>Calories</span><span>2,200 cal</span>
+                    </div>
+                    <div class="profile-goal-row">
+                        <span>Protein</span><span>120g</span>
+                    </div>
+                    <div class="profile-goal-row">
+                        <span>Budget</span><span>$20 / meal</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h3><i class="fas fa-sliders-h"></i> Dietary Preferences</h3>
+                    <div class="profile-tags" id="profile-prefs">
+                        <span class="profile-tag">High Protein</span>
+                        <span class="profile-tag">Halal</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h3><i class="fas fa-allergies"></i> Allergies</h3>
+                    <div class="profile-tags">
+                        <span class="profile-tag warning">Peanuts</span>
+                        <span class="profile-tag">+ Add</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <div class="profile-menu-item" onclick="showToast('Settings coming in Phase 3')">
+                        <i class="fas fa-cog"></i><span>Settings</span><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="profile-menu-item" onclick="showToast('Premium subscription coming soon!')">
+                        <i class="fas fa-crown"></i><span>GrubFindr Premium</span><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="profile-menu-item" onclick="showToast('Notifications coming in Phase 3')">
+                        <i class="fas fa-bell"></i><span>Notifications</span><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="profile-menu-item logout" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i><span>Sign Out</span><i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 100px;"></div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" id="bottom-nav">
+        <div class="nav-item active" onclick="navigateTo('home')" data-page="home">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('search')" data-page="search">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('favorites')" data-page="favorites">
+            <i class="fas fa-heart"></i>
+            <span>Favorites</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('tracker')" data-page="tracker">
+            <i class="fas fa-chart-pie"></i>
+            <span>Tracker</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('profile')" data-page="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
